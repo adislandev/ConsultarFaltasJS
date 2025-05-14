@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portal IDEP - Faltas & Conteúdo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --idep-blue: #0053A0; /* Cor principal do IDEP */
+      --idep-blue-darker: #004080;
+    }
+    body {
+      background-color: #f0f2f5; /* Um cinza mais claro e suave */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+    }
+    .navbar-idep {
+      background-color: var(--idep-blue);
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+    .navbar-idep .navbar-brand svg {
+      height: 40px; /* Ajuste conforme o SVG final */
+      width: auto;
+      margin-right: 10px;
+    }
+    .navbar-idep .navbar-brand span {
+        font-size: 1.1rem;
+        font-weight: 500;
+        vertical-align: middle;
+    }
+    .navbar-idep .nav-link {
+      color: rgba(255,255,255,.85);
+      font-weight: 500;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .navbar-idep .nav-link:hover, .navbar-idep .nav-link.active {
+      color: #fff;
+    }
+    .main-content-wrapper {
+        display: none; /* Escondido por padrão, será mostrado pelo JS */
+    }
+    .main-content-wrapper.active {
+        display: block;
+    }
+    .container.page-content {
+      padding-top: 30px;
+      padding-bottom: 40px;
+    }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    .dashboard-header h2 {
+      color: #343a40;
+      font-weight: 600;
+    }
+    .card {
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      margin-bottom: 25px;
+    }
+    .card-header {
+      font-weight: 500;
+      border-bottom: none;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+    .card-header.bg-danger-subtle { 
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+    }
+    .card-header.bg-success-subtle {
+        background-color: #d1e7dd !important;
+        color: #0f5132 !important;
+    }
+    .list-group-item {
+      border-left: none;
+      border-right: none;
+      padding-top: 0.85rem;
+      padding-bottom: 0.85rem;
+    }
+    .list-group-item:first-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-top: none;
+    }
+    .list-group-item:last-child {
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+      border-bottom: none;
+    }
+    .list-group-item span:first-child {
+      font-weight: 500;
+    }
+    .list-group-item span:last-child strong, .list-group-item div strong {
+      font-weight: bold;
+    }
+    .attention {
+      color: #dc3545; 
+      font-weight: bold;
+      font-style: italic;
+    }
+    .btn-idep {
+        background-color: var(--idep-blue);
+        border-color: var(--idep-blue);
+        color: #fff;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    }
+    .btn-idep:hover {
+        background-color: var(--idep-blue-darker);
+        border-color: var(--idep-blue-darker);
+        color: #fff;
+    }
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .modal-title {
+        color: #343a40;
+        font-weight: 500;
+    }
+    #searchInput {
+        border-radius: 0.3rem;
+        padding: 0.75rem;
+    }
+    .list-group-item.no-results {
+        color: #6c757d;
+        text-align: center;
+        font-style: italic;
+    }
+    .list-group-item.list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Estilos para a página de Conteúdo */
+    #conteudo-section .card-title {
+        color: var(--idep-blue);
+    }
+    #countdown {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--idep-blue-darker);
+        text-align: center;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: .5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,.07);
+    }
+    #countdown span {
+        display: block;
+        font-size: 1rem;
+        font-weight: normal;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    .footer-idep {
+      background-color: var(--idep-blue);
+      color: rgba(255,255,255,.8);
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-idep text-white fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand text-white" href="#" id="brand-logo" style="display: flex; align-items: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 50" style="height: 40px; margin-right: 10px; fill: white;">
+        <style>
+          .idep-text { font-family: Arial, sans-serif; font-weight: bold; fill: white; }
+          .institute-text { font-family: Arial, sans-serif; font-size: 6px; fill: white; }
+        </style>
+        <rect width="100%" height="100%" fill="var(--idep-blue)"/>
+        <text x="10" y="35" class="idep-text" style="font-size: 30px;">IDEP</text>
+        <text x="75" y="22" class="institute-text">Instituto Estadual de</text>
+        <text x="75" y="30" class="institute-text">Desenvolvimento da</text>
+        <text x="75" y="38" class="institute-text">Educação Profissional</text>
+        <text x="75" y="46" class="institute-text">de Rondônia</text>
+      </svg>
+      <!-- O texto ao lado do SVG pode ser removido ou ajustado -->
+      <!-- <span style="font-size: 1.5rem; font-weight: bold;">IDEP</span> -->
+      <!-- <span style="font-size: 0.8rem; display: block; line-height: 1;">Instituto Estadual de Desenvolvimento da Educação Profissional de Rondônia</span> -->
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" style="background-image: url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link active" aria-current="page" href="#dashboard" data-section="dashboard-section">Dashboard</a>
+        <a class="nav-link" href="#conteudo" data-section="conteudo-section">Conteúdo</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div style="padding-top: 90px;"> <!-- Padding para compensar navbar fixed-top -->
+
+  <div id="dashboard-section" class="main-content-wrapper active">
+    <div class="container page-content">
+      <div class="dashboard-header">
+        <h2>Dashboard de Faltas</h2>
+        <button class="btn btn-idep btn-lg" data-bs-toggle="modal" data-bs-target="#modalConsulta">
+          <i class="bi bi-search me-2"></i>CONSULTAR FALTAS
+        </button>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-danger-subtle">Top 15 Alunos com Mais Faltas</div>
+            <ul class="list-group list-group-flush" id="topFaltas">
+              <li class="list-group-item">Carregando...</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-success-subtle">Top 15 Alunos com Menos Faltas</div>
+            <ul class="list-group list-group-flush" id="bottomFaltas">
+              <li class="list-group-item">Carregando...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Modais permanecem aqui -->
+      <!-- Modal Consulta Faltas -->
+      <div class="modal fade" id="modalConsulta" tabindex="-1" aria-labelledby="modalConsultaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalConsultaLabel">Consultar Faltas do Aluno</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Digite o nome ou iniciais do aluno..." onkeyup="searchAluno(this.value)">
+              </div>
+              <ul class="list-group" id="resultList">
+                 <li class="list-group-item no-results">Digite um nome para pesquisar.</li>
+              </ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div> 
+    
+      <!-- Modal Detalhes Faltas -->
+      <div class="modal fade" id="modalDetalhesFaltas" tabindex="-1" aria-labelledby="modalDetalhesFaltasLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalDetalhesFaltasLabel">Datas das Faltas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Aluno: <strong id="detalhesAlunoNome"></strong></p>
+              <ul class="list-group" id="listaDatasFaltas">
+              </ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="conteudo-section" class="main-content-wrapper">
+    <div class="container page-content">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-body text-center">
+              <h3 class="card-title mb-4">Contagem Regressiva para o Fim do Curso</h3>
+              <p class="lead">O curso de Programação WEB está previsto para terminar em <strong>22 de Maio de 2025</strong>.</p>
+              <div id="countdown" class="my-4">
+                <!-- Contagem será inserida aqui -->
+                <div id="daysLeft">Calculando...</div>
+                <span>dias restantes</span>
+              </div>
+              <p class="text-muted">Continue focado e aproveite cada momento de aprendizado!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- Fechamento do padding-top div -->
+
+<footer class="footer-idep">
+  <div class="container">
+    <p>&copy; <span id="currentYear"></span> IDEP - Instituto Estadual de Desenvolvimento da Educação Profissional de Rondônia. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Lógica de navegação e demais scripts irão aqui
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbBQgS81J9772JRSjMwnbyyU7FyaSQXUjAG1arGBu4XSQ6uxGYGcurctOmJTLqIaRmyF86M4Xf7NtI/pub?output=csv';
+  let todosAlunos = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Atualiza o ano no rodapé
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+    // Lógica de navegação SPA
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    const contentSections = document.querySelectorAll('.main-content-wrapper');
+
+    function switchSection(targetId) {
+      contentSections.forEach(section => {
+        section.classList.remove('active');
+        if (section.id === targetId) {
+          section.classList.add('active');
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-section') === targetId) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetSectionId = link.getAttribute('data-section');
+        switchSection(targetSectionId);
+        window.location.hash = link.hash; // Atualiza o hash da URL para navegação
+
+        if (targetSectionId === 'conteudo-section') {
+          startCountdown('2025-05-22'); // Data final do curso AAAA-MM-DD
+        }
+      });
+    });
+
+    // Verifica o hash da URL ao carregar para mostrar a seção correta
+    const currentHash = window.location.hash.substring(1);
+    if (currentHash === 'conteudo') {
+        switchSection('conteudo-section');
+        startCountdown('2025-05-22');
+    } else {
+        switchSection('dashboard-section'); // Default para dashboard
+        fetchAndProcessData(); // Carregar dados das faltas apenas se estiver no dashboard
+    }
+    
+    const searchInput = document.getElementById('searchInput');
+    if(searchInput) { // Adicionar verificador de existência
+        searchInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); 
+            searchAluno(this.value);
+        }
+        });
+    }
+  });
+
+  async function fetchAndProcessData() {
+    const topFaltasList = document.getElementById('topFaltas');
+    const bottomFaltasList = document.getElementById('bottomFaltas');
+    const resultListModal = document.getElementById('resultList');
+
+    // Mostrar carregando apenas se as listas existirem
+    if(topFaltasList) topFaltasList.innerHTML = '<li class="list-group-item">Carregando dados...</li>';
+    if(bottomFaltasList) bottomFaltasList.innerHTML = '<li class="list-group-item">Carregando dados...</li>';
+
+    try {
+      const response = await fetch(CSV_URL);
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar CSV: ${response.statusText} (status: ${response.status})`);
+      }
+      const csvText = await response.text();
+      processCSVEntireText(csvText);
+      populateDashboard(todosAlunos);
+      
+      if (todosAlunos.length > 0) {
+        const initialSearchResult = [...todosAlunos].sort((a, b) => a.faltas - b.faltas).slice(0, 5);
+        renderList(initialSearchResult, 'resultList', true, 'Digite um nome para pesquisar ou veja sugestões abaixo.');
+      } else {
+        renderList([], 'resultList', false, 'Nenhum aluno carregado. Verifique a fonte de dados.');
+      }
+    } catch (error) {
+      console.error("Falha ao carregar ou processar dados:", error);
+      const errorMessage = '<li class="list-group-item text-danger">Erro ao carregar dados. Verifique o console para mais detalhes.</li>';
+      if(topFaltasList) topFaltasList.innerHTML = errorMessage;
+      if(bottomFaltasList) bottomFaltasList.innerHTML = errorMessage;
+      if(resultListModal && resultListModal.classList.contains('list-group')) resultListModal.innerHTML = errorMessage; // Adicionada verificação de classe
+    }
+  }
+
+  function processCSVEntireText(csvText) {
+    const allLines = csvText.split(/\r?\n/);
+    const dateHeaderCells = (allLines[3] || '').split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+    const dateHeaders = dateHeaderCells.slice(2, 58);
+    const studentDataLines = allLines.slice(5).filter(line => line.trim() !== '');
+    const alunosAgregados = {};
+
+    studentDataLines.forEach(line => {
+      const columns = line.split(',').map(col => col.trim().replace(/^"|"$/g, ''));
+      const nomeOriginal = columns[1] || '';
+      const nomeNormalizado = nomeOriginal.toLowerCase().trim();
+      const faltasTotalStr = columns[59] || '0';
+      const faltasTotal = parseInt(faltasTotalStr, 10) || 0;
+
+      if (nomeNormalizado && 
+          nomeNormalizado !== 'aluno (a)' && 
+          nomeNormalizado !== 'professor(a)' && 
+          nomeNormalizado !== 'supervisor(a)' &&
+          !/^_+$/.test(nomeNormalizado) && 
+          !/^-+$/.test(nomeNormalizado) && 
+          nomeOriginal.trim() !== '') {
+
+        if (!alunosAgregados[nomeNormalizado]) {
+          alunosAgregados[nomeNormalizado] = {
+            nomeOriginal: nomeOriginal,
+            faltas: 0, 
+            datasFaltas: new Set()
+          };
+        }
+        alunosAgregados[nomeNormalizado].faltas += faltasTotal;
+
+        for (let i = 0; i < dateHeaders.length; i++) {
+          const columnIndexInStudentRow = i + 2;
+          if (columns[columnIndexInStudentRow] && columns[columnIndexInStudentRow].toUpperCase() === 'F') {
+            if (dateHeaders[i] && dateHeaders[i].trim() !== '') {
+              alunosAgregados[nomeNormalizado].datasFaltas.add(dateHeaders[i]);
+            }
+          }
+        }
+      }
+    });
+
+    todosAlunos = Object.values(alunosAgregados).map(aluno => ({
+      nome: aluno.nomeOriginal,
+      faltas: aluno.faltas,
+      datasFaltas: Array.from(aluno.datasFaltas).sort((a, b) => {
+          const dateA = new Date(a.split('/').reverse().join('-'));
+          const dateB = new Date(b.split('/').reverse().join('-'));
+          return dateA - dateB;
+      })
+    }));
+  }
+
+  function populateDashboard(alunos) {
+    if (!alunos || alunos.length === 0) {
+      const msg = '<li class="list-group-item">Nenhum dado de aluno disponível.</li>';
+      if(document.getElementById('topFaltas')) document.getElementById('topFaltas').innerHTML = msg;
+      if(document.getElementById('bottomFaltas')) document.getElementById('bottomFaltas').innerHTML = msg;
+      return;
+    }
+    const topFaltas = [...alunos].sort((a, b) => b.faltas - a.faltas).slice(0, 15);
+    const bottomFaltas = [...alunos].sort((a, b) => a.faltas - b.faltas).slice(0, 15);
+
+    renderList(topFaltas, 'topFaltas', false, 'Nenhum aluno com muitas faltas.');
+    renderList(bottomFaltas, 'bottomFaltas', false, 'Nenhum aluno com poucas faltas.');
+  }
+
+  function renderList(list, elementId, showAttention = false, emptyMessage = "Nenhum aluno para exibir.") {
+    const container = document.getElementById(elementId);
+    if(!container) return; // Se o container não existe (ex: em outra seção), não faz nada
+    container.innerHTML = '';
+    if (!list || list.length === 0) {
+      container.innerHTML = `<li class="list-group-item no-results">${emptyMessage}</li>`;
+      return;
+    }
+    list.forEach(a => {
+      const item = document.createElement('li');
+      const nomeSeguro = escapeHtml(String(a.nome));
+      const faltasSeguras = escapeHtml(String(a.faltas));
+      let attentionSpan = "";
+      if (showAttention && a.faltas >= 41) { 
+        attentionSpan = ` <span class="attention">(Atenção: ${a.faltas} faltas)</span>`;
+      }
+      
+      let faltasDisplayHTML = `<strong>${faltasSeguras}</strong> faltas${attentionSpan}`;
+
+      if (elementId === 'resultList') {
+        faltasDisplayHTML += `<br><small class="text-muted" style="font-size: 0.8em; display: block; margin-top: 3px;">Limite de faltas permitido: 41</small>`;
+      }
+
+      if (elementId === 'resultList' && a.nome) {
+        item.className = 'list-group-item list-group-item-action';
+        item.innerHTML = `<span>${nomeSeguro}</span><div style="text-align: right;">${faltasDisplayHTML}</div>`;
+        item.onclick = function() { mostrarDetalhesFaltas(a.nome); };
+      } else {
+         item.className = 'list-group-item d-flex justify-content-between align-items-center';
+         item.innerHTML = `<span>${nomeSeguro}</span><div style="text-align: right;">${faltasDisplayHTML}</div>`;
+      }
+      container.appendChild(item);
+    });
+  }
+
+  function searchAluno(query) {
+    const lowerCaseQuery = query.toLowerCase().trim();
+    const resultListContainer = document.getElementById('resultList');
+    if (!resultListContainer) return;
+
+    if (!lowerCaseQuery) {
+        const initialSearchResult = [...todosAlunos].sort((a, b) => a.faltas - b.faltas).slice(0, 5);
+        renderList(initialSearchResult, 'resultList', true, 'Digite um nome para pesquisar ou veja sugestões abaixo.');
+        return;
+    }
+    const filteredAlunos = todosAlunos.filter(a => 
+      a.nome.toLowerCase().includes(lowerCaseQuery)
+    );
+    renderList(filteredAlunos, 'resultList', true, 'Nenhum aluno encontrado com este nome.');
+  }
+
+  function mostrarDetalhesFaltas(nomeAlunoClicado) {
+    const aluno = todosAlunos.find(a => a.nome === nomeAlunoClicado);
+    if (aluno) {
+      const detalhesAlunoNomeEl = document.getElementById('detalhesAlunoNome');
+      const listaDatasFaltasEl = document.getElementById('listaDatasFaltas');
+      if(detalhesAlunoNomeEl) detalhesAlunoNomeEl.textContent = aluno.nome;
+      if(listaDatasFaltasEl) listaDatasFaltasEl.innerHTML = ''; 
+
+      if (aluno.datasFaltas && aluno.datasFaltas.length > 0) {
+        aluno.datasFaltas.forEach(data => {
+          const listItem = document.createElement('li');
+          listItem.className = 'list-group-item';
+          listItem.textContent = data;
+          if(listaDatasFaltasEl) listaDatasFaltasEl.appendChild(listItem);
+        });
+      } else {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.textContent = 'Nenhuma data de falta específica registrada para este aluno.';
+        if(listaDatasFaltasEl) listaDatasFaltasEl.appendChild(listItem);
+      }
+
+      const modalDetalhesElement = document.getElementById('modalDetalhesFaltas');
+      if (modalDetalhesElement) {
+        const modalDetalhes = new bootstrap.Modal(modalDetalhesElement);
+        modalDetalhes.show();
+      }
+    } 
+  }
+  
+  function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return '';
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+  }
+
+  // Função para o contador regressivo
+  let countdownInterval;
+  function startCountdown(endDateString) {
+    if (countdownInterval) clearInterval(countdownInterval); // Limpa intervalo anterior se houver
+
+    const targetDate = new Date(endDateString).getTime();
+    const daysLeftEl = document.getElementById('daysLeft');
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = targetDate - now;
+
+        if (timeLeft < 0) {
+            if(daysLeftEl) daysLeftEl.innerHTML = "Curso Finalizado!";
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        if(daysLeftEl) daysLeftEl.textContent = days;
+    }
+    updateCountdown(); // Primeira chamada para não esperar 1 segundo
+    countdownInterval = setInterval(updateCountdown, 1000 * 60); // Atualiza a cada minuto para economizar recursos
+  }
+
+</script>
+
+</body>
+</html>
