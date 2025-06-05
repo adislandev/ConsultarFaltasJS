@@ -342,7 +342,7 @@
         window.location.hash = link.hash; // Atualiza o hash da URL para navegação
 
         if (targetSectionId === 'conteudo-section') {
-          startCountdown('2025-05-22'); // Data final do curso AAAA-MM-DD
+          startCountdown('2025-07-29'); // Data final do curso AAAA-MM-DD
         }
       });
     });
@@ -351,7 +351,7 @@
     const currentHash = window.location.hash.substring(1);
     if (currentHash === 'conteudo') {
         switchSection('conteudo-section');
-        startCountdown('2025-05-22');
+        startCountdown('2025-07-29');
     } else {
         switchSection('dashboard-section'); // Default para dashboard
         fetchAndProcessData(); // Carregar dados das faltas apenas se estiver no dashboard
